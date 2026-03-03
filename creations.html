@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Creations | Likalani Shadrack - Graphic Designer</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <a href="index.html" class="logo">LS.</a>
+        <button class="menu-toggle" aria-label="Toggle menu">☰</button>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="creations.html" class="active">My Creations</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <section style="text-align: center; margin-bottom: 2rem;">
+            <h1>My Graphic Creations</h1>
+            <p style="color: var(--text-secondary); max-width: 600px; margin: 0.5rem auto 2rem;">
+                A curated collection of my design work. Upload new creations using Cloudinary below.
+            </p>
+        </section>
+
+        <!-- Upload Section -->
+        <section class="upload-section">
+            <h3>➕ Add New Creation</h3>
+            <p style="color: var(--text-secondary); margin: 1rem 0;">
+                Upload images permanently to Cloudinary. They'll appear instantly in your gallery.
+            </p>
+            <button id="cloudinary-upload-btn" class="custom-upload">
+                ☁️ Upload via Cloudinary
+            </button>
+            <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">
+                💡 Images are hosted permanently on Cloudinary's CDN.
+            </p>
+        </section>
+
+        <!-- Gallery -->
+        <section>
+            <h2 style="margin-bottom: 1.5rem; color: var(--accent);">Gallery</h2>
+            <div class="gallery" id="gallery">
+                <!-- Images load dynamically -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 Likalani Shadrack. All rights reserved.</p>
+        <p style="margin-top: 0.5rem;">
+            <a href="mailto:rebbrownlikalani87@gmail.com">rebbrownlikalani87@gmail.com</a>
+        </p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

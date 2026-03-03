@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home | Likalani Shadrack - Graphic Designer</title>
+    <link rel="stylesheet" href="style.css">
+    <meta name="description" content="Likalani Shadrack - Professional Graphic Designer specializing in brand identity, UI/UX, and digital illustrations.">
+    <script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <a href="index.html" class="logo">LS.</a>
+        <button class="menu-toggle" aria-label="Toggle menu">☰</button>
+        <ul class="nav-links">
+            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="creations.html">My Creations</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <section class="hero">
+            <h1>Likalani Shadrack</h1>
+            <p>Graphic Designer & Visual Artist crafting compelling visual stories through innovative design solutions.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="creations.html" class="btn">View My Work</a>
+                <a href="contact.html" class="btn btn-outline">Get In Touch</a>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section class="services-section">
+            <h2 style="text-align: center; color: var(--accent); margin-bottom: 3rem;">Services I Offer</h2>
+            <div class="services-grid">
+                
+                <div class="service-card">
+                    <span class="service-icon">🎨</span>
+                    <h3>Brand Identity</h3>
+                    <p>Complete brand design including logos, color palettes, typography, and brand guidelines.</p>
+                    <span class="service-price">From $299</span>
+                    <button class="btn-order-small" data-service="Brand Identity">Order Now →</button>
+                </div>
+                
+                <div class="service-card">
+                    <span class="service-icon">📱</span>
+                    <h3>UI/UX Design</h3>
+                    <p>User-centered interface design for websites and mobile apps. Wireframes and polished visuals.</p>
+                    <span class="service-price">From $499</span>
+                    <button class="btn-order-small" data-service="UI/UX Design">Order Now →</button>
+                </div>
+                
+                <div class="service-card">
+                    <span class="service-icon">🖼️</span>
+                    <h3>Digital Illustration</h3>
+                    <p>Custom illustrations, icons, and graphics for social media, marketing, or personal projects.</p>
+                    <span class="service-price">From $149</span>
+                    <button class="btn-order-small" data-service="Digital Illustration">Order Now →</button>
+                </div>
+                
+                <div class="service-card">
+                    <span class="service-icon">📰</span>
+                    <h3>Print Design</h3>
+                    <p>Brochures, business cards, posters, packaging. Print-ready files with precision.</p>
+                    <span class="service-price">From $199</span>
+                    <button class="btn-order-small" data-service="Print Design">Order Now →</button>
+                </div>
+                
+                <div class="service-card">
+                    <span class="service-icon">✨</span>
+                    <h3>Motion Graphics</h3>
+                    <p>Animated logos, social media videos, and short explainer animations.</p>
+                    <span class="service-price">From $399</span>
+                    <button class="btn-order-small" data-service="Motion Graphics">Order Now →</button>
+                </div>
+                
+                <div class="service-card">
+                    <span class="service-icon">🔄</span>
+                    <h3>Design Consultation</h3>
+                    <p>One-on-one sessions to review your project or plan your creative direction.</p>
+                    <span class="service-price">$75/hour</span>
+                    <button class="btn-order-small" data-service="Design Consultation">Order Now →</button>
+                </div>
+                
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials-section">
+            <h2>What Clients Say</h2>
+            
+            <div class="testimonials-slider">
+                
+                <div class="testimonial-card active">
+                    <p class="testimonial-text">
+                        Likalani transformed our vague ideas into a stunning brand identity. Professional, creative, and a joy to work with!
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">SK</div>
+                        <div class="author-info">
+                            <h4>Sarah Kimani</h4>
+                            <p>Founder, EcoBloom Kenya</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <p class="testimonial-text">
+                        Our app's user engagement increased by 40% after Likalani redesigned the interface. Highly recommend!
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">JO</div>
+                        <div class="author-info">
+                            <h4>James Omondi</h4>
+                            <p>CEO, TechStart Africa</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <p class="testimonial-text">
+                        The illustrations were absolutely perfect. Delivered ahead of schedule and open to feedback throughout!
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">ML</div>
+                        <div class="author-info">
+                            <h4>Maria Lopez</h4>
+                            <p>Marketing Director, Global Brands</p>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="testimonial-dots">
+                <span class="testimonial-dot active"></span>
+                <span class="testimonial-dot"></span>
+                <span class="testimonial-dot"></span>
+            </div>
+        </section>
+    </main>
+
+    <!-- Order Modal -->
+    <div id="order-modal" class="modal-overlay">
+        <div class="modal-container">
+            <button class="modal-close" aria-label="Close modal">&times;</button>
+            
+            <div class="modal-header">
+                <h3>🛒 Place Your Order</h3>
+                <p style="color: var(--text-secondary);">Secure checkout via Netlify</p>
+            </div>
+            
+            <div class="modal-body">
+                <div id="order-login-section">
+                    <div class="user-account">
+                        <p>🔐 Login required to place orders</p>
+                        <p class="user-email user-email-display">Guest</p>
+                        <button class="btn" onclick="if(window.netlifyIdentity) window.netlifyIdentity.open();">Login / Register</button>
+                    </div>
+                </div>
+                
+                <div id="order-form-section" style="display: none;">
+                    <div class="user-account">
+                        <p>👤 Logged in as:</p>
+                        <p class="user-email user-email-display">Loading...</p>
+                        <button class="btn-logout" onclick="handleLogout()">Logout</button>
+                    </div>
+                    
+                    <form id="order-form" class="order-form" name="service-order" data-netlify="true" netlify-honeypot="bot-field">
+                        <input type="hidden" name="form-name" value="service-order">
+                        <p style="display: none;">
+                            <label>Don't fill this out: <input name="bot-field"></label>
+                        </p>
+                        
+                        <div class="form-group">
+                            <label for="order-service">Service *</label>
+                            <select id="order-service" name="service" required>
+                                <option value="">Select a service...</option>
+                                <option value="Brand Identity">🎨 Brand Identity - From $299</option>
+                                <option value="UI/UX Design">📱 UI/UX Design - From $499</option>
+                                <option value="Digital Illustration">🖼️ Digital Illustration - From $149</option>
+                                <option value="Print Design">📰 Print Design - From $199</option>
+                                <option value="Motion Graphics">✨ Motion Graphics - From $399</option>
+                                <option value="Design Consultation">🔄 Design Consultation - $75/hour</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="order-client-name">Your Name *</label>
+                            <input type="text" id="order-client-name" name="clientName" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="order-client-email">Email Address *</label>
+                            <input type="email" id="order-client-email" name="clientEmail" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="order-project-details">Project Details *</label>
+                            <textarea id="order-project-details" name="projectDetails" required placeholder="Describe your project..."></textarea>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="order-timeline">Timeline</label>
+                                <select id="order-timeline" name="timeline">
+                                    <option value="ASAP">ASAP</option>
+                                    <option value="1-2 weeks">1-2 weeks</option>
+                                    <option value="3-4 weeks">3-4 weeks</option>
+                                    <option value="1+ month">1+ month</option>
+                                    <option value="Flexible">Flexible</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="order-budget">Budget Range</label>
+                                <select id="order-budget" name="budget">
+                                    <option value="$100-300">$100-$300</option>
+                                    <option value="$300-500">$300-$500</option>
+                                    <option value="$500-1000">$500-$1,000</option>
+                                    <option value="$1000+">$1,000+</option>
+                                    <option value="Discuss">Let's discuss</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="order-summary">
+                            <strong>📋 Order Summary</strong>
+                            <p id="order-price-display" style="margin: 0.5rem 0; color: var(--accent);">Estimated: Will be confirmed</p>
+                        </div>
+                        
+                        <button type="submit" id="order-submit-btn" class="btn-order">Place Order ✓</button>
+                    </form>
+                </div>
+                
+                <div id="order-confirmation-section" class="order-confirmation" style="display: none;">
+                    <div class="success-icon">✓</div>
+                    <h4>Order Received! 🎉</h4>
+                    <p>Thank you for your order!</p>
+                    <p>Order Number:</p>
+                    <div class="order-number" id="confirmation-order-id">ORD-XXXXX</div>
+                    <p>Confirmation sent to: <strong id="confirmation-email">your@email.com</strong></p>
+                    <button class="btn" onclick="closeModal()" style="margin-top: 1.5rem;">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 Likalani Shadrack. All rights reserved.</p>
+        <p style="margin-top: 0.5rem;">
+            <a href="mailto:rebbrownlikalani87@gmail.com">rebbrownlikalani87@gmail.com</a>
+            <a href="https://instagram.com/yourhandle">📸 Instagram</a>
+            <a href="https://linkedin.com/in/yourprofile">🔗 LinkedIn</a>
+        </p>
+        <p style="margin-top: 0.5rem;">
+            <a href="privacy.html">Privacy Policy</a> | <a href="terms.html">Terms of Service</a>
+        </p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

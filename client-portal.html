@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Portal | Likalani Shadrack</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        .portal-header {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+        
+        .portal-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .portal-section {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .portal-section h2 {
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .order-steps {
+            display: flex;
+            justify-content: space-between;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .order-step {
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            position: relative;
+            opacity: 0.5;
+            transition: 0.3s;
+        }
+        
+        .order-step.active {
+            opacity: 1;
+            border: 2px solid var(--accent);
+        }
+        
+        .order-step.completed {
+            opacity: 1;
+            background: rgba(0, 200, 83, 0.1);
+            border: 2px solid var(--success);
+        }
+        
+        .order-step .step-number {
+            width: 40px;
+            height: 40px;
+            background: #333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            font-weight: bold;
+            color: var(--text-secondary);
+        }
+        
+        .order-step.active .step-number {
+            background: var(--accent);
+            color: #000;
+        }
+        
+        .order-step.completed .step-number {
+            background: var(--success);
+            color: #fff;
+        }
+        
+        .step-form {
+            display: none;
+        }
+        
+        .step-form.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .payment-method {
+            background: var(--bg-primary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #333;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        .payment-method:hover,
+        .payment-method.selected {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        
+        .payment-method .icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .timeline-visual {
+            position: relative;
+            padding: 2rem 0;
+        }
+        
+        .timeline-visual::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: #333;
+        }
+        
+        .timeline-item {
+            display: flex;
+            justify-content: flex-end;
+            padding: 1rem 0;
+            position: relative;
+            width: 50%;
+        }
+        
+        .timeline-item:nth-child(odd) {
+            align-self: flex-start;
+            justify-content: flex-end;
+            padding-right: 3rem;
+        }
+        
+        .timeline-item:nth-child(even) {
+            align-self: flex-end;
+            justify-content: flex-start;
+            padding-left: 3rem;
+            margin-left: 50%;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: #333;
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .timeline-item:nth-child(odd)::before {
+            right: -8px;
+        }
+        
+        .timeline-item:nth-child(even)::before {
+            left: -8px;
+        }
+        
+        .timeline-item.completed::before {
+            background: var(--success);
+        }
+        
+        .timeline-item.current::before {
+            background: var(--accent);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0, 210, 255, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 210, 255, 0); }
+        }
+        
+        .timeline-content {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            max-width: 280px;
+        }
+        
+        .timeline-content h4 {
+            color: var(--accent);
+            margin-bottom: 0.3rem;
+            font-size: 0.95rem;
+        }
+        
+        .timeline-content p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .progress-bar-container {
+            margin: 1.5rem 0;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #7b68ee);
+            transition: width 0.5s ease;
+        }
+        
+        .message-thread {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-radius: 8px;
+        }
+        
+        .message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+        }
+        
+        .message.admin {
+            border-left: 3px solid var(--accent);
+        }
+        
+        .message.client {
+            border-right: 3px solid var(--success);
+            text-align: right;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            gap: 1rem;
+        }
+        
+        .btn-next {
+            background: var(--accent);
+            color: #000;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        .btn-next:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+        
+        .btn-prev {
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 12px 30px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        .btn-prev:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        
+        .login-prompt {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .login-prompt .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .order-steps {
+                flex-direction: column;
+            }
+            
+            .timeline-visual::before {
+                left: 20px;
+            }
+            
+            .timeline-item {
+                width: 100%;
+                padding-left: 50px !important;
+                padding-right: 0 !important;
+                margin-left: 0 !important;
+                justify-content: flex-start !important;
+            }
+            
+            .timeline-item::before {
+                left: 12px !important;
+                right: auto !important;
+            }
+            
+            .timeline-content {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <a href="index.html" class="logo">LS.</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="client-portal.html" class="active">Client Portal</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- Portal Header -->
+    <div class="portal-header">
+        <h1>🎯 Client Portal</h1>
+        <p style="color: var(--text-secondary);">Complete your order and track your project</p>
+    </div>
+
+    <!-- Main Content -->
+    <main class="portal-container">
+        
+        <!-- Order Steps Indicator -->
+        <div class="order-steps">
+            <div class="order-step active" id="step-1-indicator">
+                <div class="step-number">1</div>
+                <p>Account</p>
+            </div>
+            <div class="order-step" id="step-2-indicator">
+                <div class="step-number">2</div>
+                <p>Order Details</p>
+            </div>
+            <div class="order-step" id="step-3-indicator">
+                <div class="step-number">3</div>
+                <p>Payment</p>
+            </div>
+            <div class="order-step" id="step-4-indicator">
+                <div class="step-number">4</div>
+                <p>Tracking</p>
+            </div>
+        </div>
+
+        <!-- Step 1: Login/Register -->
+        <div class="portal-section step-form active" id="step-1">
+            <h2>🔐 Step 1: Create Account or Login</h2>
+            <div class="login-prompt" id="login-section">
+                <div class="icon">👤</div>
+                <h3 style="margin-bottom: 1rem;">Welcome to Your Client Portal</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                    Create an account or login to continue with your order. This allows you to track your project progress and communicate directly.
+                </p>
+                <button class="btn" onclick="openLoginModal()" style="margin-bottom: 1rem;">
+                    Login / Register
+                </button>
+                <p style="font-size: 0.85rem; color: #666;">
+                    🔒 Secure authentication via Netlify Identity
+                </p>
+            </div>
+            
+            <div id="logged-in-section" style="display: none;">
+                <div style="background: var(--bg-primary); padding: 1.5rem; border-radius: 8px; text-align: center;">
+                    <p style="color: var(--text-secondary);">Logged in as:</p>
+                    <p id="user-email-display" style="font-size: 1.2rem; font-weight: 600; color: var(--accent); margin: 0.5rem 0;"></p>
+                    <button class="btn-logout" onclick="handleLogout()" style="margin-top: 1rem;">Logout</button>
+                </div>
+                <div class="nav-buttons">
+                    <div></div>
+                    <button class="btn-next" onclick="nextStep(2)">Continue to Order Details →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Order Details -->
+        <div class="portal-section step-form" id="step-2">
+            <h2>📋 Step 2: Order Details</h2>
+            <form id="order-details-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="order-service">Service *</label>
+                        <select id="order-service" name="service" required style="width: 100%; padding: 12px; background: var(--bg-primary); border: 1px solid #333; border-radius: 8px; color: var(--text-primary);">
+                            <option value="">Select a service...</option>
+                            <option value="Brand Identity">🎨 Brand Identity - From $299</option>
+                            <option value="UI/UX Design">📱 UI/UX Design - From $499</option>
+                            <option value="Digital Illustration">🖼️ Digital Illustration - From $149</option>
+                            <option value="Print Design">📰 Print Design - From $199</option>
+                            <option value="Motion Graphics">✨ Motion Graphics - From $399</option>
+                            <option value="Design Consultation">🔄 Design Consultation - $75/hour</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="order-budget">Budget Range</label>
+                        <select id="order-budget" name="budget" style="width: 100%; padding: 12px; background: var(--bg-primary); border: 1px solid #333; border-radius: 8px; color: var(--text-primary);">
+                            <option value="$100-300">$100-$300</option>
+                            <option value="$300-500">$300-$500</option>
+                            <option value="$500-1000">$500-$1,000</option>
+                            <option value="$1000+">$1,000+</option>
+                            <option value="Discuss">Let's discuss</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="order-client-name">Your Full Name *</label>
+                    <input type="text" id="order-client-name" name="clientName" required style="width: 100%; padding: 12px; background: var(--bg-primary); border: 1px solid #333; border-radius: 8px; color: var(--text-primary);">
+                </div>
+                
+                <div class="form-group">
+                    <label for="order-client-email">Email Address *</label>
+                    <input type="email" id="order-client-email" name="clientEmail" required style="width: 100%; padding: 12px; background: var(--bg-primary); border: 1px solid #333; border-radius: 8px; color: var(--text-primary);">
+                </div>
+                
+                <div class="form-group">
+                    <label for="order-project-details">Project Details *</label>
+                    <textarea id="order-project-details" name="projectDetails" required 
+                        placeholder="Describe your project, goals, timeline, and any specific requirements..."
+                        style="width: 100%; padding: 12px; background: var(--bg-primary); border: 1px solid #333; border-radius: 8px; color: var(--text-primary); min-height: 150px;"></textarea>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="order-timeline">Timeline</label>
+                        <select id="order-timeline" name="timeline" style="width: 100%; padding: 12px; background: var(--bg-primary); border: 1px solid #333; border-radius: 8px; color: var(--text-primary);">
+                            <option value="ASAP">ASAP</option>
+                            <option value="1-2 weeks">1-2 weeks</option>
+                            <option value="3-4 weeks">3-4 weeks</option>
+                            <option value="1+ month">1+ month</option>
+                            <option value="Flexible">Flexible</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="order-phone">Phone Number (Optional)</label>
+                        <input type="tel" id="order-phone" name="phone" placeholder="+254 7XX XXX XXX" style="width: 100%; padding: 12px; background: var(--bg-primary); border: 1px solid #333; border-radius: 8px; color: var(--text-primary);">
+                    </div>
+                </div>
+                
+                <div class="order-summary" style="background: var(--bg-primary); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0; border-left: 3px solid var(--accent);">
+                    <h4 style="color: var(--accent); margin-bottom: 1rem;">📊 Order Summary</h4>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: var(--text-secondary);">Service:</span>
+                        <span id="summary-service" style="font-weight: 600;">-</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: var(--text-secondary);">Deposit (50%):</span>
+                        <span id="summary-deposit" style="color: var(--accent); font-weight: 600;">-</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: var(--text-secondary);">Total Price:</span>
+                        <span id="summary-total" style="color: var(--accent); font-weight: 600;">-</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding-top: 0.5rem; border-top: 1px solid #333;">
+                        <span style="color: var(--text-secondary);">Balance After Deposit:</span>
+                        <span id="summary-balance" style="color: var(--success); font-weight: 600;">-</span>
+                    </div>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button type="button" class="btn-prev" onclick="previousStep(1)">← Back</button>
+                    <button type="submit" class="btn-next">Continue to Payment →</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Step 3: Payment -->
+        <div class="portal-section step-form" id="step-3">
+            <h2>💳 Step 3: Complete Payment</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                A 50% deposit is required to begin your project. The remaining balance is due before final delivery.
+            </p>
+            
+            <div class="order-summary" style="background: var(--bg-primary); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>Order ID:</span>
+                    <span id="payment-order-id" style="color: var(--accent); font-family: monospace;">-</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>Service:</span>
+                    <span id="payment-service-name">-</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>Deposit Required:</span>
+                    <span id="payment-deposit-amount" style="color: var(--accent); font-weight: 600;">-</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding-top: 0.5rem; border-top: 1px solid #333;">
+                    <span>Balance Due Later:</span>
+                    <span id="payment-balance-amount" style="color: var(--success); font-weight: 600;">-</span>
+                </div>
+            </div>
+            
+            <h3 style="margin: 1.5rem 0 1rem;">Choose Payment Method</h3>
+            
+            <div class="payment-methods">
+                <div class="payment-method" onclick="selectPaymentMethod('stripe')">
+                    <div class="icon">💳</div>
+                    <h4>Credit/Debit Card</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem;">Powered by Stripe</p>
+                </div>
+                
+                <div class="payment-method" onclick="selectPaymentMethod('paypal')">
+                    <div class="icon">🅿️</div>
+                    <h4>PayPal</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem;">Secure checkout</p>
+                </div>
+                
+                <div class="payment-method" onclick="selectPaymentMethod('mobile')">
+                    <div class="icon">📱</div>
+                    <h4>Mobile Money</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem;">M-Pesa, Airtel</p>
+                </div>
+                
+                <div class="payment-method" onclick="selectPaymentMethod('bank')">
+                    <div class="icon">🏦</div>
+                    <h4>Bank Transfer</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem;">Direct transfer</p>
+                </div>
+            </div>
+            
+            <!-- Stripe Payment -->
+            <div id="stripe-payment" style="display: none; background: var(--bg-primary); padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+                <button class="btn" onclick="processStripePayment()" style="width: 100%;">Pay with Card</button>
+                <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem; text-align: center;">
+                    🔒 Secure payment processed by Stripe
+                </p>
+            </div>
+            
+            <!-- PayPal Payment -->
+            <div id="paypal-payment" style="display: none; background: var(--bg-primary); padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+                <div id="paypal-button-container"></div>
+            </div>
+            
+            <!-- Mobile Money Payment -->
+            <div id="mobile-payment" style="display: none; background: var(--bg-primary); padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="mobile-number" placeholder="+254 7XX XXX XXX" style="width: 100%; padding: 12px; background: var(--bg-secondary); border: 1px solid #333; border-radius: 8px; color: var(--text-primary);">
+                </div>
+                <div class="form-group">
+                    <label>Provider</label>
+                    <select id="mobile-provider" style="width: 100%; padding: 12px; background: var(--bg-secondary); border: 1px solid #333; border-radius: 8px; color: var(--text-primary);">
+                        <option value="M-Pesa">M-Pesa</option>
+                        <option value="Airtel Money">Airtel Money</option>
+                        <option value="T-Kash">T-Kash</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="processMobileMoneyPayment()" style="width: 100%;">Send Payment Request</button>
+            </div>
+            
+            <!-- Bank Transfer -->
+            <div id="bank-payment" style="display: none; background: var(--bg-primary); padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+                <div style="margin-bottom: 1rem;">
+                    <p><strong>Bank Name:</strong> [Your Bank]</p>
+                    <p><strong>Account Name:</strong> Likalani Shadrack</p>
+                    <p><strong>Account Number:</strong> [Your Account]</p>
+                    <p><strong>Amount:</strong> <span id="bank-amount" style="color: var(--accent);"></span></p>
+                </div>
+                <div class="form-group">
+                    <label>Transaction Code (after payment)</label>
+                    <input type="text" id="transaction-code" placeholder="Enter transaction reference" style="width: 100%; padding: 12px; background: var(--bg-secondary); border: 1px solid #333; border-radius: 8px; color: var(--text-primary);">
+                </div>
+                <button class="btn" onclick="confirmBankTransfer()" style="width: 100%;">Confirm Transfer</button>
+            </div>
+            
+            <div class="nav-buttons">
+                <button type="button" class="btn-prev" onclick="previousStep(2)">← Back</button>
+                <button type="button" class="btn-next" id="complete-order-btn" onclick="completeOrder()" style="display: none;">Complete Order ✓</button>
+            </div>
+        </div>
+
+        <!-- Step 4: Project Tracking -->
+        <div class="portal-section step-form" id="step-4">
+            <h2>📊 Step 4: Track Your Project</h2>
+            
+            <div class="order-summary" style="background: var(--bg-primary); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <p style="color: var(--text-secondary);">Order ID</p>
+                        <p id="tracking-order-id" style="font-size: 1.2rem; font-weight: 600; color: var(--accent);">-</p>
+                    </div>
+                    <div>
+                        <p style="color: var(--text-secondary);">Status</p>
+                        <span id="tracking-status" class="status-badge status-pending">Pending</span>
+                    </div>
+                    <div>
+                        <p style="color: var(--text-secondary);">Progress</p>
+                        <p id="tracking-progress" style="font-size: 1.2rem; font-weight: 600; color: var(--success);">0%</p>
+                    </div>
+                </div>
+                
+                <div class="progress-bar-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="tracking-progress-bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <h3 style="color: var(--accent); margin: 1.5rem 0 1rem;">Project Timeline</h3>
+            <div class="timeline-visual" id="project-timeline">
+                <!-- Timeline loads dynamically -->
+            </div>
+            
+            <h3 style="color: var(--accent); margin: 1.5rem 0 1rem;">💬 Messages</h3>
+            <div class="message-thread" id="message-thread">
+                <p style="color: var(--text-secondary); text-align: center;">No messages yet. Start the conversation!</p>
+            </div>
+            <form id="message-form" style="display: flex; gap: 1rem; margin-top: 1rem;">
+                <input type="text" id="message-input" placeholder="Type your message..." 
+                    style="flex: 1; padding: 12px; background: var(--bg-primary); border: 1px solid #333; border-radius: 8px; color: var(--text-primary);">
+                <button type="submit" class="btn">Send</button>
+            </form>
+            
+            <h3 style="color: var(--accent); margin: 1.5rem 0 1rem;">📁 Project Files</h3>
+            <div id="files-list" style="background: var(--bg-primary); padding: 1.5rem; border-radius: 8px;">
+                <p style="color: var(--text-secondary);">Files will appear here as Likalani uploads them</p>
+            </div>
+            
+            <div style="margin-top: 2rem; text-align: center;">
+                <a href="index.html" class="btn btn-outline">← Back to Home</a>
+                <button class="btn" onclick="completePayment()" style="margin-left: 1rem;">💳 Pay Remaining Balance</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 Likalani Shadrack. All rights reserved.</p>
+        <p style="margin-top: 0.5rem;">
+            <a href="mailto:rebbrownlikalani87@gmail.com">rebbrownlikalani87@gmail.com</a>
+        </p>
+    </footer>
+
+    <!-- Payment Success Modal -->
+    <div id="payment-success-modal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="order-confirmation">
+                <div class="success-icon">✓</div>
+                <h4>Payment Successful! 🎉</h4>
+                <p>Order <span id="success-order-id" style="color: var(--accent);"></span> confirmed!</p>
+                <p>A receipt has been sent to your email.</p>
+                <button class="btn" onclick="completeOrder()" style="margin-top: 1.5rem;">Continue to Tracking</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="payment.js"></script>
+    <script>
+        // ===== CLIENT PORTAL LOGIC =====
+        let currentStep = 1;
+        let currentOrder = null;
+        let selectedPaymentMethod = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            checkLoginStatus();
+            
+            // Load pending order from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const service = urlParams.get('service');
+            
+            if (service) {
+                document.getElementById('order-service').value = service;
+                updateOrderSummary();
+            }
+            
+            // Setup form submission
+            document.getElementById('order-details-form').addEventListener('submit', handleOrderSubmit);
+            
+            // Setup message form
+            document.getElementById('message-form').addEventListener('submit', handleSendMessage);
+            
+            // Load order data if exists
+            loadExistingOrder();
+        });
+
+        // ===== LOGIN CHECK =====
+        function checkLoginStatus() {
+            if (window.netlifyIdentity) {
+                const user = window.netlifyIdentity.currentUser();
+                if (user) {
+                    showLoggedInState(user);
+                }
+                
+                window.netlifyIdentity.on('login', user => {
+                    showLoggedInState(user);
+                });
+                
+                window.netlifyIdentity.on('logout', () => {
+                    showLoggedOutState();
+                });
+            }
+        }
+
+        function openLoginModal() {
+            if (window.netlifyIdentity) {
+                window.netlifyIdentity.open();
+            } else {
+                alert('Please refresh the page and try again.');
+            }
+        }
+
+        function showLoggedInState(user) {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('logged-in-section').style.display = 'block';
+            document.getElementById('user-email-display').textContent = user.email;
+            
+            // Pre-fill form with user data
+            document.getElementById('order-client-email').value = user.email;
+            document.getElementById('order-client-name').value = user.user_metadata?.full_name || '';
+        }
+
+        function showLoggedOutState() {
+            document.getElementById('login-section').style.display = 'block';
+            document.getElementById('logged-in-section').style.display = 'none';
+        }
+
+        // ===== STEP NAVIGATION =====
+        function nextStep(step) {
+            // Validate current step before proceeding
+            if (currentStep === 1) {
+                const user = window.netlifyIdentity?.currentUser();
+                if (!user) {
+                    showNotification('🔐 Please login first', 'error');
+                    openLoginModal();
+                    return;
+                }
+            }
+            
+            if (currentStep === 2) {
+                const form = document.getElementById('order-details-form');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+            }
+            
+            // Hide current step
+            document.getElementById(`step-${currentStep}`).classList.remove('active');
+            document.getElementById(`step-${currentStep}-indicator`).classList.remove('active');
+            
+            // Show next step
+            currentStep = step;
+            document.getElementById(`step-${currentStep}`).classList.add('active');
+            document.getElementById(`step-${currentStep}-indicator`).classList.add('active');
+            
+            // Mark previous steps as completed
+            for (let i = 1; i < currentStep; i++) {
+                document.getElementById(`step-${i}-indicator`).classList.add('completed');
+            }
+            
+            // Load step-specific data
+            if (currentStep === 3) {
+                loadPaymentStep();
+            }
+            
+            if (currentStep === 4) {
+                loadTrackingStep();
+            }
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function previousStep(step) {
+            document.getElementById(`step-${currentStep}`).classList.remove('active');
+            document.getElementById(`step-${currentStep}-indicator`).classList.remove('active');
+            
+            currentStep = step;
+            document.getElementById(`step-${currentStep}`).classList.add('active');
+            document.getElementById(`step-${currentStep}-indicator`).classList.add('active');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ===== ORDER SUMMARY =====
+        document.getElementById('order-service').addEventListener('change', updateOrderSummary);
+        document.getElementById('order-budget').addEventListener('change', updateOrderSummary);
+
+        function updateOrderSummary() {
+            const service = document.getElementById('order-service').value;
+            const deposit = calculateDeposit(service);
+            const total = deposit * 2;
+            const balance = total - deposit;
+            
+            document.getElementById('summary-service').textContent = service || '-';
+            document.getElementById('summary-deposit').textContent = '$' + deposit;
+            document.getElementById('summary-total').textContent = '$' + total;
+            document.getElementById('summary-balance').textContent = '$' + balance;
+        }
+
+        // ===== ORDER SUBMISSION =====
+        async function handleOrderSubmit(e) {
+            e.preventDefault();
+            
+            const orderData = {
+                service: document.getElementById('order-service').value,
+                budget: document.getElementById('order-budget').value,
+                clientName: document.getElementById('order-client-name').value,
+                clientEmail: document.getElementById('order-client-email').value,
+                projectDetails: document.getElementById('order-project-details').value,
+                timeline: document.getElementById('order-timeline').value,
+                phone: document.getElementById('order-phone').value
+            };
+            
+            // Create order
+            currentOrder = createOrderInPortal(orderData);
+            
+            // Save to localStorage
+            const orders = JSON.parse(localStorage.getItem('all_orders') || '[]');
+            orders.push(currentOrder);
+            localStorage.setItem('all_orders', JSON.stringify(orders));
+            localStorage.setItem('current_order_id', currentOrder.orderId);
+            
+            showNotification('✅ Order created successfully!', 'success');
+            nextStep(3);
+        }
+
+        // ===== PAYMENT STEP =====
+        function loadPaymentStep() {
+            if (!currentOrder) {
+                const orderId = localStorage.getItem('current_order_id');
+                const orders = JSON.parse(localStorage.getItem('all_orders') || '[]');
+                currentOrder = orders.find(o => o.orderId === orderId);
+            }
+            
+            if (currentOrder) {
+                document.getElementById('payment-order-id').textContent = currentOrder.orderId;
+                document.getElementById('payment-service-name').textContent = currentOrder.service;
+                document.getElementById('payment-deposit-amount').textContent = '$' + currentOrder.deposit;
+                document.getElementById('payment-balance-amount').textContent = '$' + currentOrder.deposit;
+                document.getElementById('bank-amount').textContent = '$' + currentOrder.deposit;
+            }
+        }
+
+        function selectPaymentMethod(method) {
+            selectedPaymentMethod = method;
+            
+            // Hide all payment options
+            ['stripe', 'paypal', 'mobile', 'bank'].forEach(m => {
+                document.getElementById(`${m}-payment`).style.display = 'none';
+            });
+            
+            // Remove selection from all methods
+            document.querySelectorAll('.payment-method').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Show selected method
+            document.getElementById(`${method}-payment`).style.display = 'block';
+            event.currentTarget.classList.add('selected');
+            
+            // Show complete button for bank transfer (manual verification)
+            if (method === 'bank') {
+                document.getElementById('complete-order-btn').style.display = 'block';
+            }
+        }
+
+        function completeOrder() {
+            // Update order status
+            currentOrder.status = 'deposit_paid';
+            currentOrder.paymentStatus = 'partial';
+            
+            const orders = JSON.parse(localStorage.getItem('all_orders') || '[]');
+            const index = orders.findIndex(o => o.orderId === currentOrder.orderId);
+            if (index !== -1) {
+                orders[index] = currentOrder;
+                localStorage.setItem('all_orders', JSON.stringify(orders));
+            }
+            
+            // Show success
+            document.getElementById('success-order-id').textContent = currentOrder.orderId;
+            document.getElementById('payment-success-modal').classList.add('active');
+            
+            showNotification('🎉 Order completed! Redirecting to tracking...', 'success');
+            
+            // Send notification to admin (in production, use Netlify Function)
+            setTimeout(() => {
+                nextStep(4);
+            }, 2000);
+        }
+
+        // ===== TRACKING STEP =====
+        function loadTrackingStep() {
+            if (!currentOrder) {
+                const orderId = localStorage.getItem('current_order_id');
+                const orders = JSON.parse(localStorage.getItem('all_orders') || '[]');
+                currentOrder = orders.find(o => o.orderId === orderId);
+            }
+            
+            if (currentOrder) {
+                document.getElementById('tracking-order-id').textContent = currentOrder.orderId;
+                document.getElementById('tracking-status').textContent = formatStatus(currentOrder.status);
+                document.getElementById('tracking-status').className = `status-badge status-${currentOrder.status}`;
+                
+                const progress = calculateProgress(currentOrder.status);
+                document.getElementById('tracking-progress').textContent = progress + '%';
+                document.getElementById('tracking-progress-bar').style.width = progress + '%';
+                
+                // Load timeline
+                loadTimeline();
+                
+                // Load messages
+                loadMessages();
+                
+                // Load files
+                loadFiles();
+            }
+        }
+
+        function loadTimeline() {
+            const timeline = document.getElementById('project-timeline');
+            const stages = [
+                { id: 'order_placed', name: 'Order Placed', date: 'Day 1', icon: '✅' },
+                { id: 'discovery', name: 'Discovery Call', date: 'Day 2-3', icon: '📞' },
+                { id: 'concept', name: 'Concept Development', date: 'Day 4-7', icon: '🎨' },
+                { id: 'review', name: 'Client Review', date: 'Day 8-10', icon: '👁️' },
+                { id: 'revisions', name: 'Revisions', date: 'Day 11-14', icon: '🔄' },
+                { id: 'final', name: 'Final Polish', date: 'Day 15-17', icon: '✨' },
+                { id: 'delivery', name: 'Delivery', date: 'Day 18', icon: '📦' }
+            ];
+            
+            const currentStage = getCurrentStage(currentOrder.status);
+            
+            timeline.innerHTML = stages.map((stage, index) => {
+                const completed = index < currentStage;
+                const current = index === currentStage;
+                
+                return `
+                    <div class="timeline-item ${completed ? 'completed' : ''} ${current ? 'current' : ''}">
+                        <div class="timeline-content">
+                            <h4>${stage.icon} ${stage.name}</h4>
+                            <p>${stage.date}</p>
+                            <p style="font-size: 0.75rem; color: #666;">
+                                ${completed ? '✅ Completed' : current ? '🔄 In Progress' : '⏳ Pending'}
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getCurrentStage(status) {
+            const stages = {
+                'pending': 0,
+                'deposit_paid': 1,
+                'in_progress': 2,
+                'review': 3,
+                'complete': 6
+            };
+            return stages[status] || 0;
+        }
+
+        function calculateProgress(status) {
+            const progress = {
+                'pending': 10,
+                'deposit_paid': 25,
+                'in_progress': 50,
+                'review': 75,
+                'complete': 100
+            };
+            return progress[status] || 0;
+        }
+
+        function formatStatus(status) {
+            const statuses = {
+                'pending': 'Pending',
+                'deposit_paid': 'Deposit Paid',
+                'in_progress': 'In Progress',
+                'review': 'Client Review',
+                'complete': 'Complete'
+            };
+            return statuses[status] || status;
+        }
+
+        // ===== MESSAGES =====
+        function loadMessages() {
+            const thread = document.getElementById('message-thread');
+            const messages = currentOrder?.messages || [];
+            
+            if (messages.length === 0) {
+                thread.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No messages yet. Start the conversation!</p>';
+                return;
+            }
+            
+            thread.innerHTML = messages.map(msg => `
+                <div class="message ${msg.sender}">
+                    <p>${msg.text}</p>
+                    <small style="color: #666;">${new Date(msg.date).toLocaleString()}</small>
+                </div>
+            `).join('');
+            
+            thread.scrollTop = thread.scrollHeight;
+        }
+
+        function handleSendMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('message-input');
+            const text = input.value.trim();
+            
+            if (!text) return;
+            
+            if (!currentOrder.messages) {
+                currentOrder.messages = [];
+            }
+            
+            currentOrder.messages.push({
+                text: text,
+                sender: 'client',
+                date: new Date().toISOString()
+            });
+            
+            // Save to localStorage
+            const orders = JSON.parse(localStorage.getItem('all_orders') || '[]');
+            const index = orders.findIndex(o => o.orderId === currentOrder.orderId);
+            if (index !== -1) {
+                orders[index] = currentOrder;
+                localStorage.setItem('all_orders', JSON.stringify(orders));
+            }
+            
+            input.value = '';
+            loadMessages();
+            
+            showNotification('Message sent! Likalani will respond soon.', 'success');
+        }
+
+        // ===== FILES =====
+        function loadFiles() {
+            const filesList = document.getElementById('files-list');
+            const files = currentOrder?.files || [];
+            
+            if (files.length === 0) {
+                filesList.innerHTML = '<p style="color: var(--text-secondary);">No files uploaded yet. Files will appear here when Likalani shares them.</p>';
+                return;
+            }
+            
+            filesList.innerHTML = files.map(file => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--bg-secondary); border-radius: 8px; margin-bottom: 0.5rem;">
+                    <div>
+                        <strong style="color: var(--accent);">${file.name}</strong>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem;">${file.date}</p>
+                    </div>
+                    <a href="${file.url}" download class="btn btn-outline" style="padding: 6px 16px; font-size: 0.85rem;">Download</a>
+                </div>
+            `).join('');
+        }
+
+        function loadExistingOrder() {
+            const orderId = localStorage.getItem('current_order_id');
+            if (orderId) {
+                const orders = JSON.parse(localStorage.getItem('all_orders') || '[]');
+                currentOrder = orders.find(o => o.orderId === orderId);
+                
+                if (currentOrder && currentOrder.status !== 'pending') {
+                    // Order already exists, go to tracking
+                    currentStep = 4;
+                    document.querySelectorAll('.step-form').forEach(el => el.classList.remove('active'));
+                    document.querySelectorAll('.order-step').forEach(el => {
+                        el.classList.remove('active');
+                        el.classList.add('completed');
+                    });
+                    document.getElementById('step-4').classList.add('active');
+                    document.getElementById('step-4-indicator').classList.add('active');
+                    loadTrackingStep();
+                }
+            }
+        }
+
+        function completePayment() {
+            // Open payment for remaining balance
+            showNotification('💳 Payment portal for balance will open', 'info');
+            // In production, redirect to payment page with order ID
+        }
+    </script>
+</body>
+</html>

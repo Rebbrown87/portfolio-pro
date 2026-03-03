@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Likalani Shadrack</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-nav {
+            background: var(--bg-secondary);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+        
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-card {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card p {
+            color: var(--text-secondary);
+        }
+        
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .orders-table th,
+        .orders-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+        
+        .orders-table th {
+            background: var(--bg-primary);
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .orders-table tr:hover {
+            background: rgba(0, 210, 255, 0.05);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .status-pending { background: #ff9800; color: #000; }
+        .status-deposit_paid { background: #2196f3; color: #fff; }
+        .status-in_progress { background: #9c27b0; color: #fff; }
+        .status-review { background: #ff5722; color: #fff; }
+        .status-complete { background: #4caf50; color: #fff; }
+        .status-cancelled { background: #f44336; color: #fff; }
+        
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin: 2px;
+            transition: 0.3s;
+        }
+        
+        .action-btn-view { background: var(--accent); color: #000; }
+        .action-btn-edit { background: #ff9800; color: #000; }
+        .action-btn-delete { background: var(--danger); color: #fff; }
+        
+        .action-btn:hover { transform: translateY(-2px); }
+        
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .filter-bar select,
+        .filter-bar input {
+            padding: 8px 16px;
+            background: var(--bg-primary);
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: var(--text-primary);
+        }
+        
+        .admin-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: var(--bg-secondary);
+            padding: 2rem 1rem;
+            border-right: 1px solid #333;
+        }
+        
+        .admin-sidebar ul {
+            list-style: none;
+            margin-top: 2rem;
+        }
+        
+        .admin-sidebar li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .admin-sidebar a {
+            display: block;
+            padding: 12px 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+        
+        .admin-sidebar a:hover,
+        .admin-sidebar a.active {
+            background: var(--accent);
+            color: #000;
+        }
+        
+        .admin-content {
+            margin-left: 250px;
+            padding: 2rem;
+        }
+        
+        .timeline-editor {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+        }
+        
+        .timeline-stage {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid #333;
+        }
+        
+        .timeline-stage:last-child {
+            border-bottom: none;
+        }
+        
+        .stage-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .revenue-chart {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            min-height: 300px;
+        }
+        
+        @media (max-width: 768px) {
+            .admin-sidebar {
+                display: none;
+            }
+            
+            .admin-content {
+                margin-left: 0;
+            }
+            
+            .orders-table {
+                font-size: 0.85rem;
+            }
+            
+            .orders-table th,
+            .orders-table td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Admin Navigation -->
+    <div class="admin-nav">
+        <a href="index.html" class="logo">LS. Admin</a>
+        <div>
+            <span id="admin-email" style="color: var(--text-secondary); margin-right: 1rem;"></span>
+            <button class="btn-logout" onclick="handleLogout()">Logout</button>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="admin-sidebar">
+        <h3 style="color: var(--accent);">Dashboard</h3>
+        <ul>
+            <li><a href="admin.html" class="active">📊 Overview</a></li>
+            <li><a href="#orders">🛒 Orders</a></li>
+            <li><a href="#payments">💳 Payments</a></li>
+            <li><a href="#clients">👥 Clients</a></li>
+            <li><a href="#timeline">⏱️ Timeline</a></li>
+            <li><a href="#settings">⚙️ Settings</a></li>
+        </ul>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="admin-content">
+        <main>
+            <h1 style="margin-bottom: 2rem;">Admin Dashboard</h1>
+            
+            <!-- Stats -->
+            <div class="admin-stats">
+                <div class="stat-card">
+                    <h3 id="total-orders">0</h3>
+                    <p>Total Orders</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="pending-orders">0</h3>
+                    <p>Pending</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="in-progress-orders">0</h3>
+                    <p>In Progress</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="revenue">$0</h3>
+                    <p>Total Revenue</p>
+                </div>
+            </div>
+            
+            <!-- Filters -->
+            <div class="filter-bar">
+                <select id="filter-status" onchange="filterOrders()">
+                    <option value="all">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="deposit_paid">Deposit Paid</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="review">Client Review</option>
+                    <option value="complete">Complete</option>
+                </select>
+                
+                <select id="filter-service" onchange="filterOrders()">
+                    <option value="all">All Services</option>
+                    <option value="Brand Identity">Brand Identity</option>
+                    <option value="UI/UX Design">UI/UX Design</option>
+                    <option value="Digital Illustration">Digital Illustration</option>
+                    <option value="Print Design">Print Design</option>
+                    <option value="Motion Graphics">Motion Graphics</option>
+                </select>
+                
+                <input type="date" id="filter-date" onchange="filterOrders()">
+                
+                <input type="text" id="search-orders" placeholder="Search by client..." onkeyup="filterOrders()">
+            </div>
+            
+            <!-- Orders Table -->
+            <h2 style="color: var(--accent); margin: 2rem 0 1rem;">Recent Orders</h2>
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Client</th>
+                        <th>Service</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="orders-table-body">
+                    <!-- Orders load dynamically -->
+                </tbody>
+            </table>
+            
+            <!-- Revenue Chart -->
+            <h2 style="color: var(--accent); margin: 2rem 0 1rem;">Revenue Overview</h2>
+            <div class="revenue-chart" id="revenue-chart">
+                <p style="color: var(--text-secondary); text-align: center; padding: 3rem;">
+                    📊 Revenue chart will appear here (integrate with Chart.js for visualization)
+                </p>
+            </div>
+            
+            <!-- Timeline Editor -->
+            <h2 style="color: var(--accent); margin: 2rem 0 1rem;">Project Timeline Manager</h2>
+            <div class="timeline-editor">
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    Update project stages for active orders
+                </p>
+                <div id="timeline-stages">
+                    <!-- Timeline stages load dynamically -->
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Order Detail Modal -->
+    <div id="order-detail-modal" class="modal-overlay">
+        <div class="modal-container" style="max-width: 700px;">
+            <button class="modal-close" onclick="closeOrderDetailModal()">&times;</button>
+            <div class="modal-header">
+                <h3>Order Details</h3>
+            </div>
+            <div class="modal-body" id="order-detail-content">
+                <!-- Order details load here -->
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="payment.js"></script>
+    <script src="admin.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
